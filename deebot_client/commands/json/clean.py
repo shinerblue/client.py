@@ -91,6 +91,27 @@ class CleanV2(Clean):
         return args
 
 
+class CleanMower(Clean):
+    """Clean command for mower devices (GOAT family).
+
+    Uses the ``"clean"`` command name (not ``"clean_V2"``) with a V2-style
+    ``content`` body. Unlike :class:`CleanV2`, this always sends
+    ``{"type": "auto"}`` for every action — start / resume / pause / stop —
+    matching iOS-app traffic captured in
+    https://github.com/DeebotUniverse/client.py/issues/852#issuecomment-2745410917.
+
+    Sending ``{"type": ""}`` (as :class:`CleanV2` does for PAUSE/STOP) is
+    rejected by the Ecovacs backend for newer GOAT firmware with
+    ``code 20003 "unknow type"``, so that approach cannot be shared.
+    """
+
+    def _get_args(self, action: CleanAction) -> dict[str, Any]:
+        return {
+            "act": action.value,
+            "content": {"type": CleanMode.AUTO.value},
+        }
+
+
 class CleanAreaV2(CleanV2):
     """Clean area command."""
 
